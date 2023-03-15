@@ -1,70 +1,75 @@
+import os
 import json
 import boto3
-from botocore.vendored import requests  # for OpenSearch requests
-from urllib.parse import quote_plus  # for URL encoding query
+from opensearchpy import OpenSearch, RequestsHttpConnection
+from opensearchpy.helpers import to_dict
+from botocore.exceptions import ClientError
+from requests_aws4auth import AWS4Auth
+
+REGION = os.environ['AWS_REGION']
+LEX_RUNTIME = boto3.client('lexv2-runtime', region_name=REGION)
+OPENSEARCH_ENDPOINT = os.environ['OPENSEARCH_ENDPOINT']
+OPENSEARCH_INDEX = "photos"
+
+# Set up AWS authentication for OpenSearch
+credentials = boto3.Session().get_credentials()
+awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, REGION, 'es', session_token=credentials.token)
+
+# Set up OpenSearch client
+opensearch = OpenSearch(
+    hosts=[{'host': OPENSEARCH_ENDPOINT, 'port': 443}],
+    http_auth=awsauth,
+    use_ssl=True,
+    verify_certs=True,
+    connection_class=RequestsHttpConnection
+)
 
 def lambda_handler(event, context):
-    # Extract the user's input from the event
-    input_text = event['request']['inputTranscript']
+    query = event["queryString"]
 
-    # Call the Lex bot to disambiguate the query
-    lex_client = boto3.client('lexv2-runtime')
-    lex_response = lex_client.recognize_text(
-        botId='5GMXHBNSCD',
-        botAliasId='TSTALIASID',
-        localeId='en_US',
-        sessionId=event['session']['id'],
-        text=input_text
-    )
-    print(lex_response)
+    # Disambiguate the query using Amazon Lex V2 bot
+    try:
+        response = LEX_RUNTIME.recognize_text(
+            botId='YourBotId',
+            botAliasId='YourBotAliasId',
+            localeId='en_US', # Replace this with your bot's locale
+            sessionId='YourSessionId',
+            text=query
+        )
+    except ClientError as e:
+        print(e.response['Error']['Message'])
+        return {"results": []}
 
-    # Get any keywords returned by Lex
+    # If Amazon Lex V2 disambiguation request yields any keywords
     keywords = []
-    if 'slots' in lex_response['interpretations'][0]:
-        for slot in lex_response['interpretations'][0]['slots']:
-            if slot['value'] is not None:
-                keywords.append(slot['value']['interpretedValue'])
-    print(keywords)
+    if 'interpretations' in response and len(response['interpretations']) > 0:
+        interpretation = response['interpretations'][0]
+        if 'slots' in interpretation:
+            for slot in interpretation['slots']:
+                if slot['value']['interpretedValue']:
+                    keywords.append(slot['value']['interpretedValue'])
 
-    # Search the OpenSearch index for results
+    # Search the OpenSearch index for results and return them accordingly
     if keywords:
-        # Create the OpenSearch request URL
-        url = 'https://photos-search-domain-abcxyz7890123.us-east-1.es.amazonaws.com/photos/_search?q='
-        url += ' AND '.join([quote_plus(k) for k in keywords])
-        print(url)
-
-        # Send the OpenSearch request
-        response = requests.get(url)
-        search_results = response.json()['hits']['hits']
+        search_results = search_photos(keywords)
+        return {"results": search_results}
     else:
-        # Return an empty array if no keywords were found
-        search_results = []
+        return {"results": []}
 
-    # Format the search results as per the API spec
-    formatted_results = []
-    for result in search_results:
-        photo_url = result['_source']['photo_url']
-        photo_title = result['_source']['photo_title']
-        formatted_results.append({'url': photo_url, 'title': photo_title})
-
-    # Return the search results as a JSON response
-    response_body = {'results': formatted_results}
-    response = {
-        'sessionState': event['session'],
-        'interpretations': [
-            {
-                'intent': {
-                    'name': 'SearchIntent'
-                },
-                'response': {
-                    'messages': [
-                        {
-                            'contentType': 'PlainText',
-                            'content': json.dumps(response_body)
-                        }
-                    ]
-                }
+def search_photos(keywords):
+    query_body = {
+        "query": {
+            "bool": {
+                "should": [{"match": {"description": keyword}} for keyword in keywords]
             }
-        ]
+        }
     }
-    return response
+
+    try:
+        response = opensearch.search(index=OPENSEARCH_INDEX, body=query_body)
+    except Exception as e:
+        print(f"Error while searching OpenSearch index: {str(e)}")
+        return []
+
+    results = [to_dict(hit["_source"]) for hit in response["hits"]["hits"]]
+    return results
