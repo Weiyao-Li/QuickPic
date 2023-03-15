@@ -6,40 +6,38 @@ from opensearchpy.helpers import to_dict
 from botocore.exceptions import ClientError
 from requests_aws4auth import AWS4Auth
 
-REGION = os.environ['AWS_REGION']
+REGION = "us-east-1"
 LEX_RUNTIME = boto3.client('lexv2-runtime', region_name=REGION)
-OPENSEARCH_ENDPOINT = os.environ['OPENSEARCH_ENDPOINT']
+OPENSEARCH_ENDPOINT = "search-photos-eumyc7ppo2p53eh3lnadp7jyqq.us-east-1.es.amazonaws.com"
 OPENSEARCH_INDEX = "photos"
 
-# Set up AWS authentication for OpenSearch
-credentials = boto3.Session().get_credentials()
-awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, REGION, 'es', session_token=credentials.token)
-
+lexv2 = boto3.client("lexv2-runtime")
 # Set up OpenSearch client
-opensearch = OpenSearch(
-    hosts=[{'host': OPENSEARCH_ENDPOINT, 'port': 443}],
-    http_auth=awsauth,
-    use_ssl=True,
-    verify_certs=True,
-    connection_class=RequestsHttpConnection
-)
+def get_awsauth(REGION, service):
+    cred = boto3.Session().get_credentials()
+    return AWS4Auth(cred.access_key,
+                    cred.secret_key,
+                    REGION,
+                    service,
+                    session_token=cred.token)
+
+
 
 def lambda_handler(event, context):
     query = event["queryString"]
 
-    # Disambiguate the query using Amazon Lex V2 bot
-    try:
-        response = LEX_RUNTIME.recognize_text(
-            botId='YourBotId',
-            botAliasId='YourBotAliasId',
-            localeId='en_US', # Replace this with your bot's locale
-            sessionId='YourSessionId',
-            text=query
-        )
-    except ClientError as e:
-        print(e.response['Error']['Message'])
-        return {"results": []}
 
+
+    # Disambiguate the query using Amazon Lex V2 bot
+
+    response = lexv2.recognize_text(
+        botId='5GMXHBNSCD',
+        botAliasId='TSTALIASID',
+        localeId='en_US',
+        sessionId='testuser',
+        text=query
+    )
+    print(response)
     # If Amazon Lex V2 disambiguation request yields any keywords
     keywords = []
     if 'interpretations' in response and len(response['interpretations']) > 0:
@@ -57,19 +55,25 @@ def lambda_handler(event, context):
         return {"results": []}
 
 def search_photos(keywords):
-    query_body = {
-        "query": {
-            "bool": {
-                "should": [{"match": {"description": keyword}} for keyword in keywords]
-            }
-        }
-    }
+    if len(keywords)>1:
+        term = " ".join(keywords)
+        q = {'size': 20, 'query': {'multi_match': {'query': term}}}
+    else:
+        q =  {'size': 20, 'query': {'multi_match': {'query': keywords[0]}}}
 
     try:
-        response = opensearch.search(index=OPENSEARCH_INDEX, body=query_body)
+        opensearch = OpenSearch(
+            hosts=[{'host': OPENSEARCH_ENDPOINT, 'port': 443}],
+            http_auth=get_awsauth(REGION, "es"),
+            use_ssl=True,
+            verify_certs=True,
+            connection_class=RequestsHttpConnection
+        )
+        response = opensearch.search(index=OPENSEARCH_INDEX, body=q)
     except Exception as e:
         print(f"Error while searching OpenSearch index: {str(e)}")
         return []
 
     results = [to_dict(hit["_source"]) for hit in response["hits"]["hits"]]
     return results
+
