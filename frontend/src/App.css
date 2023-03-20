@@ -1,38 +1,86 @@
-.App {
-  text-align: center;
+* {
+  margin: 10px;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.photos_title {
+  font-weight: bold;
+  font-size: 25px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+body {
+  font-family: 'Courier New', Courier, monospace;
   color: white;
+  background-color: rgb(39, 37, 37);
 }
 
-.App-link {
-  color: #61dafb;
+.container-fluid {
+  padding: 30px 50px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.search_photos {
+  width: 575px;
+  margin: 0 auto;
+  position: relative;
+  border-radius: 30px;
+}
+
+#search_photos {
+  width: 75%;
+  margin: 0 auto;
+  position: relative;
+}
+
+#search_photos input {
+  width: 100%;
+  font-size: 1.5rem;
+  padding: 10px 15px;
+  border: 2px solid #ccc;
+  border-radius: 2px;
+}
+
+#search_photos button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: transparent;
+  outline: none;
+  border: none;
+  width: 3rem; /* Adjust the width */
+  height: 3rem; /* Add this line with the same value as the width */
+  text-align: center;
+  font-size: 1.75rem;
+  cursor: pointer;
+  color: #333;
+  border-radius: 50%; /* Keep this line */
+}
+
+
+
+.search_info {
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 1200px) {
+  #search_photos {
+    width: 50%;
   }
-  to {
-    transform: rotate(360deg);
+}
+
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 30px 35px;
+  }
+
+  #search_photos {
+    width: 100%;
+  }
+
+  .info {
+    font-size: 0.5rem;
   }
 }
