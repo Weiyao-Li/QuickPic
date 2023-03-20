@@ -8,6 +8,7 @@ import datetime
 import requests
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
+import inflection
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
@@ -32,15 +33,15 @@ def lambda_handler(event, context):
         interpretation = response['interpretations'][0]
         if 'slots' in interpretation["intent"]:
             for key, value in interpretation["intent"]["slots"].items():
-                if key in ["query_term1", "query_term2", "query_term3"] and value:
+                if key in ["query_term1", "query_term2"] and value:
                     key_words = value["value"]["interpretedValue"]
                     if " " in key_words:
                         key_words = key_words.split(" ")
                         for word in key_words:
-                            keywords.append(word)
+                            keywords.append(inflection.inflection.singularize(word))
                     else:
-                        keywords.append(key_words)
-
+                        keywords.append(inflection.inflection.singularize(key_words))
+    # lex delete query3
     print(keywords)
     if keywords:
         img_paths = search_photos(keywords)
