@@ -8,7 +8,7 @@ import datetime
 import requests
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
-import inflection
+import inflection.inflection as inf
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
@@ -38,9 +38,9 @@ def lambda_handler(event, context):
                     if " " in key_words:
                         key_words = key_words.split(" ")
                         for word in key_words:
-                            keywords.append(inflection.inflection.singularize(word))
+                            keywords.append(inf.singularize(word))
                     else:
-                        keywords.append(inflection.inflection.singularize(key_words))
+                        keywords.append(inf.singularize(key_words))
     # lex delete query3
     print(keywords)
     if keywords:
