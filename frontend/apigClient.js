@@ -53,7 +53,7 @@ apigClientFactory.newClient = function (config) {
 
     
     // extract endpoint and path from url
-    var invokeUrl = 'https://mseidlm2ec.execute-api.us-east-1.amazonaws.com/v1_photo';
+    var invokeUrl = 'https://8vnqwtfglj.execute-api.us-east-1.amazonaws.com/test';
     var endpoint = /(^https?:\/\/[^\/]+)/g.exec(invokeUrl)[1];
     var pathComponent = invokeUrl.substring(endpoint.length);
 
@@ -137,57 +137,39 @@ apigClientFactory.newClient = function (config) {
     };
     
     
-    apigClient.uploadBucketOptions = function (params, body, additionalParams) {
+    apigClient.uploadObjectPut = function (params, body, additionalParams) {
         if(additionalParams === undefined) { additionalParams = {}; }
         
-        apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
+        apiGateway.core.utils.assertParametersDefined(params, ['object', 'x-amz-meta-customLabels'], ['body']);
         
-        var uploadBucketOptionsRequest = {
-            verb: 'options'.toUpperCase(),
-            path: pathComponent + uritemplate('/upload/{bucket}').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
-            headers: apiGateway.core.utils.parseParametersToObject(params, []),
-            queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
-            body: body
-        };
-        
-        
-        return apiGatewayClient.makeRequest(uploadBucketOptionsRequest, authType, additionalParams, config.apiKey);
-    };
-    
-    
-    apigClient.uploadBucketKeyPut = function (params, body, additionalParams) {
-        if(additionalParams === undefined) { additionalParams = {}; }
-        
-        apiGateway.core.utils.assertParametersDefined(params, ['key', 'bucket', 'Content-Type'], ['body']);
-        
-        var uploadBucketKeyPutRequest = {
+        var uploadObjectPutRequest = {
             verb: 'put'.toUpperCase(),
-            path: pathComponent + uritemplate('/upload/{bucket}/{key}').expand(apiGateway.core.utils.parseParametersToObject(params, ['key', 'bucket', ])),
-            headers: apiGateway.core.utils.parseParametersToObject(params, ['Content-Type']),
+            path: pathComponent + uritemplate('/upload/{object}').expand(apiGateway.core.utils.parseParametersToObject(params, ['object', ])),
+            headers: apiGateway.core.utils.parseParametersToObject(params, ['x-amz-meta-customLabels']),
             queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
             body: body
         };
         
         
-        return apiGatewayClient.makeRequest(uploadBucketKeyPutRequest, authType, additionalParams, config.apiKey);
+        return apiGatewayClient.makeRequest(uploadObjectPutRequest, authType, additionalParams, config.apiKey);
     };
     
     
-    apigClient.uploadBucketKeyOptions = function (params, body, additionalParams) {
+    apigClient.uploadObjectOptions = function (params, body, additionalParams) {
         if(additionalParams === undefined) { additionalParams = {}; }
         
         apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
         
-        var uploadBucketKeyOptionsRequest = {
+        var uploadObjectOptionsRequest = {
             verb: 'options'.toUpperCase(),
-            path: pathComponent + uritemplate('/upload/{bucket}/{key}').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
+            path: pathComponent + uritemplate('/upload/{object}').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
             headers: apiGateway.core.utils.parseParametersToObject(params, []),
             queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
             body: body
         };
         
         
-        return apiGatewayClient.makeRequest(uploadBucketKeyOptionsRequest, authType, additionalParams, config.apiKey);
+        return apiGatewayClient.makeRequest(uploadObjectOptionsRequest, authType, additionalParams, config.apiKey);
     };
     
 
