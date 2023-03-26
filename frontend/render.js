@@ -16,23 +16,16 @@ function searchPhoto() {
   apigClient
     .searchGet(params, body, additionalParams)
     .then(function (res) {
-      var data = {};
-      var data_array = [];
-      console.log(res)
       var resp_data = res.data;
-      var length_of_response = JSON.stringify(resp_data.body);
-      length_of_response = length_of_response.trim();
-      console.log(typeof(length_of_response));
-      console.log(length_of_response)
-      console.log(length_of_response == "\"No Results found\"")
+      console.log(resp_data)
+      if (resp_data.results=="No Results found") {
+         document.getElementById('displaytext').innerHTML =
+             'Sorry could not find the image. Try another search words!' ;
+         document.getElementById('displaytext').style.display = 'block';
+       }
 
-      if (length_of_response == "\"No Results found\"") {
-        document.getElementById('displaytext').innerHTML =
-          'Sorry could not find the image. Try again!' ;
-        document.getElementById('displaytext').style.display = 'block';
-      }
 
-      resp_data.forEach(function (obj) {
+      resp_data.results.forEach(function (obj) {
         var img = new Image();
         console.log(obj);
         img.src = obj;
@@ -64,38 +57,24 @@ function getBase64(file) {
 }
 
 function uploadPhoto() {
-  var file = document.getElementById('file_path').files[0];
-  const reader = new FileReader();
-  var note_customtag = document.getElementById("note_customtag");
-
-  var file_data;
-  var encoded_image = getBase64(file).then((data) => {
-    console.log(data);
-    var apigClient = apigClientFactory.newClient();
-
-    var file_type = file.type + ';base64';
-    console.log(file_type)
-    var body = data;
-    var params = {
-      object: file.name,
-      'x-amz-meta-customLabels': note_customtag.value,
-    };
-    console.log(note_customtag.value)
-    var additionalParams = {};
-    apigClient
-      .uploadObjectPut(params, body, additionalParams)
+  var fileInput = document.getElementById('file_path');
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+  var apigClient = apigClientFactory.newClient();
+  var params = {
+    "object": fileInput.files[0].name,
+    'x-amz-meta-customLabels': note_customtag.value,
+  };
+  console.log(note_customtag.value)
+  var additionalParams = {};
+  apigClient
+      .uploadObjectPut(params, formData, additionalParams)
       .then(function (res) {
-        if (res.status === 200) {
+        if (res.status == 200) {
           document.getElementById('uploadText').innerHTML =
-            ':) Your image is uploaded successfully!';
+              ':) Your image is uploaded successfully!';
           document.getElementById('uploadText').style.display = 'block';
         }
       });
-  }
-  );
-
-
-
-
-
 }
+
