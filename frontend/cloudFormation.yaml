@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "AWS CloudFormation template for Amazon OpenSearch Service domain (photoscf) with t3.small.search instance type"
+
+Resources:
+  PhotosCFDomain:
+    Type: "AWS::OpenSearchService::Domain"
+    Properties:
+      DomainName: "photoscf"
+      EngineVersion: "OpenSearch_2.5"
+      ClusterConfig:
+        InstanceType: "t3.small.search"
+        InstanceCount: 1
+      EBSOptions:
+        EBSEnabled: true
+        VolumeType: "gp3"
+        VolumeSize: 10
+      SnapshotOptions:
+        AutomatedSnapshotStartHour: 0
+      AccessPolicies:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: 'arn:aws:iam::584371126097:user/opensearch-user'
+            Action: "es:*"
+            Resource: !Sub 'arn:aws:es:us-east-1:584371126097:domain/photoscf/*'

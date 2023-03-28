@@ -57,24 +57,31 @@ function getBase64(file) {
 }
 
 function uploadPhoto() {
-  var fileInput = document.getElementById('file_path');
-  const formData = new FormData();
-  formData.append('file', fileInput.files[0]);
-  var apigClient = apigClientFactory.newClient();
-  var params = {
-    "object": fileInput.files[0].name,
-    'x-amz-meta-customLabels': note_customtag.value,
-  };
-  console.log(note_customtag.value)
-  var additionalParams = {};
-  apigClient
-      .uploadObjectPut(params, formData, additionalParams)
-      .then(function (res) {
-        if (res.status == 200) {
-          document.getElementById('uploadText').innerHTML =
-              ':) Your image is uploaded successfully!';
-          document.getElementById('uploadText').style.display = 'block';
-        }
-      });
-}
+    var file = document.getElementById('file_path').files[0];
+    const reader = new FileReader();
 
+    var file_data;
+    var encoded_image = getBase64(file).then((data) => {
+        console.log(data);
+        var apigClient = apigClientFactory.newClient();
+
+        var file_type = file.type + ';base64';
+        console.log(file_type)
+        var body = data;
+        var params = {
+            "object": file.name,
+            'x-amz-meta-customLabels': note_customtag.value,
+        };
+        console.log(note_customtag.value)
+        var additionalParams = {};
+        apigClient
+            .uploadObjectPut(params, body, additionalParams)
+            .then(function (res) {
+                if (res.status == 200) {
+                    document.getElementById('uploadText').innerHTML =
+                        ':) Your image is uploaded successfully!';
+                    document.getElementById('uploadText').style.display = 'block';
+                }
+            });
+    });
+}
