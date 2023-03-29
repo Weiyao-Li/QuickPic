@@ -18,8 +18,8 @@ index = "photos"
 
 lexv2 = boto3.client("lexv2-runtime")
 def lambda_handler(event, context):
-
-    msg_from_user = 'I need some photos with trees'
+    print(event)
+    msg_from_user = event["queryStringParameters"]["q"]
     response = lexv2.recognize_text(
         botId='5GMXHBNSCD',
         botAliasId='TSTALIASID',
@@ -43,24 +43,31 @@ def lambda_handler(event, context):
                         keywords.append(inf.singularize(key_words))
     # lex delete query3
     print(keywords)
+    img_paths = []
     if keywords:
         img_paths = search_photos(keywords)
 
     if not img_paths:
         return {
             'statusCode': 200,
-            "headers": {"Access-Control-Allow-Origin": "*"},
-            'body': json.dumps('No Results found')
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': '*',
+            },
+            'body': json.dumps({'results': "No Results found"})
         }
     else:
         return {
             'statusCode': 200,
-            'headers': {"Access-Control-Allow-Origin": "*"},
-            'body': {
-                'imagePaths': img_paths,
-                'userQuery': q1,
-                'labels': labels,
-            }
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': '*',
+            },
+            'body': json.dumps({'results': img_paths})
         }
 
 
@@ -92,7 +99,13 @@ def search_photos(keywords):
         response = opensearch.search(body=query, index="photos")
         print(response)
         hits = response['hits']['hits']
-        return hits
+        img_list = []
+        for element in hits:
+            objectKey = element['_source']['objectKey']
+            bucket = element['_source']['bucket']
+            image_url = "https://" + bucket + ".s3.amazonaws.com/" + objectKey
+            img_list.append(image_url)
+        return img_list
 
     except Exception as e:
         print(f"Error while searching OpenSearch index: {str(e)}")

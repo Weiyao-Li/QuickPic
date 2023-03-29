@@ -5,37 +5,44 @@ from opensearchpy import OpenSearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 import datetime
 import logging
+import base64
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 s3 = boto3.client('s3')
-rekognition = boto3.client('rekognition')
-
 REGION = 'us-east-1'
+rekognition = boto3.client('rekognition', region_name=REGION)
+
 HOST = 'search-photos-eumyc7ppo2p53eh3lnadp7jyqq.us-east-1.es.amazonaws.com'
+
 
 def lambda_handler(event, context):
     s3_event = event['Records'][0]['s3']
     bucket = s3_event['bucket']['name']
     key = s3_event['object']['key']
 
+    metadata = s3.head_object(Bucket=bucket, Key=key)['Metadata']
+    custom_labels = metadata.get('customlabels')
+    print(custom_labels)
+
+    response = s3.get_object(Bucket=bucket, Key=key)
+    content = response['Body'].read().decode("utf-8")
+
+    image = base64.b64decode(content)
+
+    # delete original photos and upload new one in s3
+    response = s3.delete_object(Bucket=bucket, Key=key)
+    response = s3.put_object(Bucket=bucket, Body=image, Key=key, ContentType='image/jpg')
+
     response = rekognition.detect_labels(
-        Image={
-            'S3Object': {
-                'Bucket': bucket,
-                'Name': key
-            }
-        }
+        Image={'Bytes': image}
     )
     labels = [label['Name'] for label in response['Labels']]
     print('Labels:', labels)
 
-    metadata = s3.head_object(Bucket=bucket, Key=key)['Metadata']
-    custom_labels = metadata.get('x-amz-meta-customLabels')
     if custom_labels:
-        custom_labels = json.loads(custom_labels)
-        labels.extend(custom_labels)
+        labels.append(custom_labels)
 
     object_metadata = s3.head_object(Bucket=bucket, Key=key)['Metadata']
     created_timestamp = object_metadata.get('creation-date')
@@ -65,7 +72,6 @@ def lambda_handler(event, context):
         response_from_opensearch = client_OpenSearch.index(
             index='photos',
             body=es_payload)
-        print("successful")
 
     except Exception as e:
         logger.error(str(e))
