@@ -24,3 +24,44 @@ Resources:
               AWS: 'arn:aws:iam::584371126097:user/opensearch-user'
             Action: "es:*"
             Resource: !Sub 'arn:aws:es:us-east-1:584371126097:domain/photoscf/*'
+
+  S3Bucket1:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: PublicRead
+      BucketName: "hw2bucket1weiyaoli"
+      WebsiteConfiguration:
+        IndexDocument: index.html
+
+  S3Bucket2:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: PublicRead
+      BucketName: "hw2bucket2weiyaoli"
+
+
+  indexPhoto:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.9
+      Role: arn:aws:iam::584371126097:role/service-role/index-photos-role-rf08ykeb
+      Handler: lambda_function.lambda_handler
+      Code:
+        S3Bucket: bucketforlambdaweiyaoli
+        S3Key: ezyzip-2.zip
+
+  searchPhoto:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Runtime: python3.9
+      Role: arn:aws:iam::584371126097:role/service-role/search-photos-role-t5agtqe5
+      Handler: lambda_function.lambda_handler
+      Code:
+        S3Bucket: bucketforlambdaweiyaoli
+        S3Key: ezyzip.zip
+
+  photoAPI:
+    Type: 'AWS::ApiGateway::RestApi'
+    Properties:
+      CloneFrom: '8vnqwtfglj'
+      Name: 'photoSearch'
