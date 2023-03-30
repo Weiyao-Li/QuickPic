@@ -13,7 +13,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 region = "us-east-1"
-host = "search-photoscf-dzv7stkzlfny5xr77e4f357dte.us-east-1.es.amazonaws.com/"
+host = "search-photoscf-dzv7stkzlfny5xr77e4f357dte.us-east-1.es.amazonaws.com"
 index = "photoscf"
 
 lexv2 = boto3.client("lexv2-runtime")

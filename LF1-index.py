@@ -14,7 +14,7 @@ s3 = boto3.client('s3')
 REGION = 'us-east-1'
 rekognition = boto3.client('rekognition', region_name=REGION)
 
-HOST = 'search-photos-eumyc7ppo2p53eh3lnadp7jyqq.us-east-1.es.amazonaws.com'
+HOST = 'search-photoscf-dzv7stkzlfny5xr77e4f357dte.us-east-1.es.amazonaws.com'
 
 
 def lambda_handler(event, context):
@@ -70,7 +70,7 @@ def lambda_handler(event, context):
 
     try:
         response_from_opensearch = client_OpenSearch.index(
-            index='photos',
+            index='photoscf',
             body=es_payload)
 
     except Exception as e:
