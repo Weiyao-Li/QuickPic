@@ -13,8 +13,8 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 region = "us-east-1"
-host = "search-photos-eumyc7ppo2p53eh3lnadp7jyqq.us-east-1.es.amazonaws.com"
-index = "photos"
+host = "search-photoscf-dzv7stkzlfny5xr77e4f357dte.us-east-1.es.amazonaws.com/"
+index = "photoscf"
 
 lexv2 = boto3.client("lexv2-runtime")
 def lambda_handler(event, context):
@@ -96,7 +96,7 @@ def search_photos(keywords):
     )
 
     try:
-        response = opensearch.search(body=query, index="photos")
+        response = opensearch.search(body=query, index="photoscf")
         print(response)
         hits = response['hits']['hits']
         img_list = []
