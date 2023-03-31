@@ -5,8 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f5a99b06-6d68-4847-bd99-660617b04a0d" name="Changes" comment="update">
+      <change beforePath="$PROJECT_DIR$/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/script.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/render.js" beforeDir="false" afterPath="$PROJECT_DIR$/render.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/style1.css" beforeDir="false" afterPath="$PROJECT_DIR$/style1.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,12 +32,14 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/weiyaoli/Desktop/QuickPic/Frontend&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.new.ui&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -67,6 +72,11 @@
       <workItem from="1680191795930" duration="958000" />
       <workItem from="1680195581215" duration="566000" />
       <workItem from="1680201010747" duration="276000" />
+      <workItem from="1680206514272" duration="3806000" />
+      <workItem from="1680229351881" duration="139000" />
+      <workItem from="1680230061846" duration="9000" />
+      <workItem from="1680231488414" duration="356000" />
+      <workItem from="1680232408459" duration="87000" />
     </task>
     <task id="LOCAL-00001" summary="update">
       <created>1679459091942</created>
