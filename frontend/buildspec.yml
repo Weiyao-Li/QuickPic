@@ -7,4 +7,4 @@ phases:
   post_build:
     commands:
       - echo "Deploying frontend to S3..."
-      - aws s3 sync . s3://<YOUR_S3_BUCKET> --delete --exclude "buildspec.yml" --exclude "cf.yaml" --exclude "lib/*"
+      - aws s3 sync . s3://hw2bucket1weiyaoli --delete --exclude "buildspec.yml" --exclude "cf.yaml" --exclude "lib/*"
