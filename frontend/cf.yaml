@@ -41,7 +41,7 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties:
       AccessControl: PublicRead
-      BucketName: "hw2bucket1weiyaoli"
+      BucketName: "hw2bucket1weiyaoliweb"
       WebsiteConfiguration:
         IndexDocument: index.html
 
