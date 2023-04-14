@@ -18,7 +18,6 @@ index = "photoscf"
 
 lexv2 = boto3.client("lexv2-runtime")
 def lambda_handler(event, context):
-    print("hello world!")
     print(event)
     msg_from_user = event["queryStringParameters"]["q"]
     response = lexv2.recognize_text(
