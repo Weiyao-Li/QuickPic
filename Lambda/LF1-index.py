@@ -18,7 +18,7 @@ HOST = 'search-photoscf-dzv7stkzlfny5xr77e4f357dte.us-east-1.es.amazonaws.com'
 
 
 def lambda_handler(event, context):
-    print("hello world")
+    print("hello world!")
     s3_event = event['Records'][0]['s3']
     bucket = s3_event['bucket']['name']
     key = s3_event['object']['key']
